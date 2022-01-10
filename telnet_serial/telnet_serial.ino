@@ -1,6 +1,9 @@
 
-//#define USE_DHCP                 // IPアドレスをDHCPで行う (コメントアウトした場合は固定IP)
+
 #define DEBUG
+#define DEBUG_SERIAL_SPEED 115200
+
+//#define USE_DHCP                 // IPアドレスをDHCPで行う (コメントアウトした場合は固定IP)
 
 #define USE_DEFAULT_NETWORK_IF     // デフォルトのネットワークI/Fを使うか否かの指定． デフォルトが定義されない機種もあるので注意
 /* デフォルトのNICを用いない場合は，以下の中から選択 */
@@ -9,6 +12,9 @@
 //#define USE_NORMAL_ETHERNET        //デフォルトのNICを無視して，強制的にイーサネットシールドを使う場合
 
 //#define USE_CUSTOM_SERIAL
+
+#define USE_HARD_RESET_PIN 15 // Espr one 32のD2 これを定義すると、ハードリセットプログラムがコンパイルされる
+#define HARD_RESET_TIME 1000  // 1秒(定義の単位はms)
 
 /*
  * telnetのポート番号定義
@@ -302,12 +308,16 @@ void setupNetwork(void) {
 
 void setup() {
 #ifdef DEBUG
-  Serial.begin(9600) ;    // シリアル通信の初期化
+  Serial.begin(DEBUG_SERIAL_SPEED) ;    // シリアル通信の初期化
   while (!Serial) {       // シリアルポートが開くのを待つ
     ;
   }
 #endif /* DEBUG */
   logging("setup start.\n");
+#ifdef USE_HARD_RESET_PIN
+  pinMode(USE_HARD_RESET_PIN, OUTPUT);
+  digitalWrite(USE_HARD_RESET_PIN, LOW);
+#endif /* USE_HARD_RESET_PIN */
   setupNetwork();
   logging(F("network setup done.\n"));
   state=STATE_WAIT_CLIENT;
@@ -427,11 +437,14 @@ void PrintPrompt(void) {
 void PrintHelp(void) {
   client.println("");
   client.println("Commands are :");
-  client.println(" 's' or 'S' - serial speed select menu.");
-  client.println(" 'o' or 'O' - open serial port.");
-  client.println(" 'r' or 'R' - reboot.");
-  client.println(" 'q' or 'Q' - terminate telnet connection.");
-  client.println(" 'h' or 'H' - print this help.");
+  client.println(" 's' or 'S'        - serial speed select menu.");
+  client.println(" 'o' or 'O'        - open serial port.");
+  client.println(" 'r' or 'R'        - reboot.");
+  client.println(" 'q' or 'Q'        - terminate telnet connection.");
+#ifdef USE_HARD_RESET_PIN
+  client.println(" 'x' or 'X'        - hard reset(target system).");
+#endif /* USE_HARD_RESET_PIN */
+  client.println(" 'h' or 'H' or '?' - print this help.");
 }
 
 bool SelectSerialSpeed(void){
@@ -589,6 +602,14 @@ void PrintCtrlCode(void) {
   }
 }
 
+#ifdef USE_HARD_RESET_PIN
+void ExecHardReset(void) {
+  digitalWrite(USE_HARD_RESET_PIN, HIGH);
+  delay(HARD_RESET_TIME);
+  digitalWrite(USE_HARD_RESET_PIN, LOW);
+}
+#endif /* USE_HARD_RESET_PIN */
+
 uint8_t CommandInput(void) {
   unsigned long lastTime=millis();
   int garbase;
@@ -621,8 +642,15 @@ uint8_t CommandInput(void) {
         case 'R':
           client.stop();
           helper.SoftwareReset();
+#ifdef USE_HARD_RESET_PIN
+        case 'x':
+        case 'X':
+          ExecHardReset();
+          return STATE_OPERATION;
+#endif /* USE_HARD_RESET_PIN */
         case 'h':
         case 'H':
+        case '?':
           PrintHelp();PrintPrompt();break;
         default:
           client.println("error : invalid command");PrintPrompt();

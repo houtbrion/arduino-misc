@@ -11,6 +11,7 @@
 
 ## 対応プラットフォーム
 下の表の環境で動作確認しています．
+
 |CPUアーキ| 動作環境|
 |---|---|
 | AVR   | [Arduino Mega](https://store.arduino.cc/products/arduino-mega-2560-rev3) + [イーサネットシールド](https://store.arduino.cc/products/arduino-ethernet-shield-2) + [ロジックレベル変換回路(SparkFun BOB-12009)](https://www.sparkfun.com/products/12009) |
@@ -142,11 +143,12 @@ CM>
 他のコマンドですが，``r``はArduinoをリブートするコマンドで，``q``はtelnetを終了します．
 ```
 Commands are :
- 's' or 'S' - serial speed select menu.
- 'o' or 'O' - open serial port.
- 'r' or 'R' - reboot.
- 'q' or 'Q' - terminate telnet connection.
- 'h' or 'H' - print this help.
+ 's' or 'S'        - serial speed select menu.
+ 'o' or 'O'        - open serial port.
+ 'r' or 'R'        - reboot.
+ 'q' or 'Q'        - terminate telnet connection.
+ 'x' or 'X'        - hard reset(target system).
+ 'h' or 'H' or '?' - print this help.
 CM>
 ```
 
@@ -205,6 +207,21 @@ char passwd[][PASSWORD_LENGTH]={PASSWORD1, PASSWORD2, PASSWORD3};
 #define INPUT_TIMEOUT 300000
 ```
 
+### リセットピンを使う場合の設定
+Raspberry Piでは，OSをシャットダウンした状態でGPIOの3番ピン(I2Cと兼用)をGNDに落とすとOSのロードがされる仕様となっています．
+この機能を使うための機能が実装されており，下に引用したように「USE_HARD_RESET_PIN」にArduino(もしくは互換機)のピン番号を定義しておくと，この機能がコンパイルされます．
+```
+#define USE_HARD_RESET_PIN 15 // Espr one 32のD2 これを定義すると、ハードリセットプログラムがコンパイルされる
+#define HARD_RESET_TIME 1000  // 1秒(定義の単位はms)
+```
+この機能は，コマンドモードで「x」もしくは「X」を投入すると，「HARD_RESET_TIME」で定義された時間(単位はミリ秒)だけArduinoのピンの電圧がHIGHになります．Raspberry Piでリセットするためには，Arduino側の端子がHIGHになった場合に，Raspberry Pi側の端子がGND(LOW)になる必要があるため，変換の回路を取り付ける必要があります．
+
+このような仕様になっている理由は，Arduinoや互換機が再起動した場合に端子の電圧がLOWに落ちてしまうため，Raspberry Piをシャットダウンした状態でArduinoを再起動できるようにするためです．
+
+他にもこの機能の使いみちとしては，Raspberry Pi側で特定のピンの電圧を監視しておいて，HIGHになったらなにかをするという用途に転用することもできます．
+
+Raspberry Pi以外でもBeagle Bone等の開発用ボードでは，この機能を活用できる可能性はありますが，詳細は調査していません．
+
 ### IP設定
 
 #### DHCPを利用する場合
@@ -221,4 +238,50 @@ IPAddress dnsServer(192, 168, 1, 1);
 IPAddress gatewayAddress(192, 168, 1, 1);
 IPAddress netMask(255, 255, 255, 0);
 ```
+
+## ハード
+ここでは，ESP32でこのプログラムを動作させ，Raspberry Piに接続して利用する場合のハードウェアを紹介します．最初の図はブレッドボードで作成した場合の回路になります．
+
+![fig1](./fig/circuit_b.png)
+![fig2](./fig/circuit_c.png)
+
+
+利用した部材は以下の通りです．
+
+| 種類 | 用いた部材/装置 | 備考 |
+|---|---|---|
+| 開発対象 | [スイッチサイエンス ESPr one 32](https://www.switch-science.com/catalog/3555/)|Arduino Uno系と基板の形が同じになっているESP32のマイコン|
+|リレー関係| [リレーモジュール](https://akizukidenshi.com/catalog/g/gK-13573/)|リレーとトランジスタ，抵抗などコミコミのモジュール|
+|制御される側のサーバ|[Raspberry Pi](https://www.raspberrypi.org/)|今回は家であまってるPi2を使いました|
+
+### ESP32とRaspberry Piのシリアル接続
+Raspberry Piとマイコンを接続する配線のうちシリアルの系統は，「[Raspberry pi pin map](https://docs.microsoft.com/en-us/windows/iot-core/learn-about-hardware/pinmappings/pinmappingsrpi)」と「[ESP32のpin map](https://randomnerdtutorials.com/esp32-pinout-reference-gpios/)」を参照してください．
+
+大まかには，Raspberry PiのUARTとESP32のUART2を接続しています．UART0は開発でコンパイルしたバイナリのインストールや，ログの監視につかうため，それ以外で確実にバッティングしないシリアルということで，ESP32はUART2を使っています．それに対して，Raspberry PiはUARTは1つしかないので，そこを使っています．
+
+### ハードウェアリセットの利用
+本プログラムでは，ESP32のGPIO15番をshutdownしたRaspbery Piの再起動(ハードウェアリセット)に用いていますが，その原理については[こちらの参考文献](https://hammmm.hatenablog.com/entry/2016/11/14/231337)を参照してください．
+
+ESP32自体をリセットすると，ESP32のピンの電圧がHIGH/LOWがパタパタするようで，Raspberry Piをshutdownしておき，ESP32のリセット(リセットボタン操作)を行うと，Raspberry Pi自体も起動してしまいます．
+
+本プログラムでは，狙った時だけRaspberry PiのピンをGNDに落とす必要があるため，ESP32のピンをHIGHにした時だけ，Raspberry Piの特定ピンがGNDに落とすため，何らかのスイッチのようなものが必要になります．
+
+そのため，今回の試作で使ったリレーの他，[アナログスイッチ](https://akizukidenshi.com/catalog/g/gI-05673/)も試して見ましたが，アナログスイッチは入力に対する応答性が良すぎて，ESP32のリブートによるピン電圧のパタ付きでRaspberry Pi側のピンがGNDに落ちてしまいました．
+
+shutdownしたRaspberry Piをリブートすることが目的なので，頻繁に使うものでもなく，Raspberry Pi側のピンがI2Cと共用ということもあり，普段は完全に切り離すことができ，繰り返し利用の耐久性もそれほど必要ではないので，リレーで済ませてます．
+
+### Raspberry Piのシリアルコンソール有効化
+なお，Raspberry PiでUARTをシリアルコンソールにしていないと，本プログラムの嬉しさが半減してしまうので，UARTをコンソール(/dev/console)にして上げてください．設定方法はぐぐるとでてきますが，Raspberry Piの/boot/config.txtをエディタで編集する必要があります．
+
+Pi2は下の2行のうち，上の行だけ(``enable_uart=1``)を/boot/config.txtに追加すればよく，Pi3は両方とも必要です．Pi4は使ったことがないので未確認です．
+```
+enable_uart=1
+core_freq=250
+```
+
+## 将来課題
+とりあえず，思いついているのは以下の3つですが，最初の一つはArduinoが再起動して，ピンの電圧がHIGH/LOWがパタパタするような状況でも電源回路が影響を受けないようにするのが面倒そうなので，今のところ実装のアイデアがないです．2番目と3番目は時間と気合次第でしょうか．現状手元では，3.3VのArduino (MKR系やESP32等)でSDを使うための部材がないので(ロジックレベル変換回路やSDの回路)，いつかお財布に余裕があるときに秋葉原で買い物してきます．これを書いている前日に行ったけど買い忘れたし，往復の電車/バス代などで千円以上するし～，コロナも怖いのでしばらく間を開けます．
+- 外付け電源回路を制御して対象システム(Raspberry Pi等)の電源強制ON/OFFを行う
+- telnetログイン時の認識をもっと柔軟/強力にする
+- ログを残す(SDやネットワーク越しのsyslog)
 
