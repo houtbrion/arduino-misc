@@ -1,30 +1,29 @@
-# Arduino’P“Æ
+# Arduinoå˜ç‹¬
 
-## ŠT—v
-Arduino Mega‚à‚µ‚­‚Íƒ‹ƒlƒTƒX‚ÌGR-kurumi‚ÆXbee‚ð‘g‚Ý‡‚í‚¹‚ÄC
-È“d—Íƒ‚[ƒh‚Å‘Ò‹@‚µ‚Ä‚¢‚éMCU‚ðXbee‚©‚ç‚ÌM†‚Å‹N‚±‚µC
-ƒZƒ“ƒVƒ“ƒOˆ—‚ð‚µ‚½Œ‹‰Ê‚ðXbeeŒo—R‚ÅŠO•”‚É”­M‚·‚é
-ƒvƒƒOƒ‰ƒ€D
+## æ¦‚è¦
+Arduino Megaã‚‚ã—ãã¯ãƒ«ãƒã‚µã‚¹ã®GR-kurumiã¨Xbeeã‚’çµ„ã¿åˆã‚ã›ã¦ï¼Œ
+çœé›»åŠ›ãƒ¢ãƒ¼ãƒ‰ã§å¾…æ©Ÿã—ã¦ã„ã‚‹MCUã‚’Xbeeã‹ã‚‰ã®ä¿¡å·ã§èµ·ã“ã—ï¼Œ
+ã‚»ãƒ³ã‚·ãƒ³ã‚°å‡¦ç†ã‚’ã—ãŸçµæžœã‚’XbeeçµŒç”±ã§å¤–éƒ¨ã«ç™ºä¿¡ã™ã‚‹
+ãƒ—ãƒ­ã‚°ãƒ©ãƒ ï¼Ž
 
-## Xbee‚ÌÝ’è
-Xbee‚Ìƒtƒ@[ƒ€‚ÍƒfƒoƒCƒXATÚ‘±‚Å
-È“d—Íƒ‚[ƒh‚Í4‚à‚µ‚­‚Í5‚Å“®ì‚³‚¹‚éD
+## Xbeeã®è¨­å®š
+Xbeeã®ãƒ•ã‚¡ãƒ¼ãƒ ã¯ãƒ‡ãƒã‚¤ã‚¹ATæŽ¥ç¶šã§
+çœé›»åŠ›ãƒ¢ãƒ¼ãƒ‰ã¯4ã‚‚ã—ãã¯5ã§å‹•ä½œã•ã›ã‚‹ï¼Ž
 
-‚È‚¨Cˆ—C—¹‚Ü‚ÅXbee‚ð‘Ò‚½‚¹‚é‹@”\‚ª
-ŽÀ‘•‚³‚ê‚Ä‚¢‚È‚¢‚½‚ßCƒXƒŠ[ƒvƒ‚[ƒh‚Ì
-ƒIƒvƒVƒ‡ƒ“‚Í2(ŽžŠÔ‚ª—ˆ‚é‚Ü‚Å‹N‚«‘±‚¯‚é)‚É
-‚µ‚½ã‚ÅCMCU‚Ìˆ—‚ª•K‚¸I‚í‚é’ö“x‚Ì
-—]—T‚ð‚à‚Á‚½ŽžŠÔXbee‚ª‹N‚«‘±‚¯‚é‚æ‚¤‚É
-‚·‚é•K—v‚ª‚ ‚éD
+ãªãŠï¼Œå‡¦ç†ä¿®äº†ã¾ã§Xbeeã‚’å¾…ãŸã›ã‚‹æ©Ÿèƒ½ãŒ
+å®Ÿè£…ã•ã‚Œã¦ã„ãªã„ãŸã‚ï¼Œã‚¹ãƒªãƒ¼ãƒ—ãƒ¢ãƒ¼ãƒ‰ã®
+ã‚ªãƒ—ã‚·ãƒ§ãƒ³ã¯2(æ™‚é–“ãŒæ¥ã‚‹ã¾ã§èµ·ãç¶šã‘ã‚‹)ã«
+ã—ãŸä¸Šã§ï¼ŒMCUã®å‡¦ç†ãŒå¿…ãšçµ‚ã‚ã‚‹ç¨‹åº¦ã®
+ä½™è£•ã‚’ã‚‚ã£ãŸæ™‚é–“XbeeãŒèµ·ãç¶šã‘ã‚‹ã‚ˆã†ã«
+ã™ã‚‹å¿…è¦ãŒã‚ã‚‹ï¼Ž
 
-## ‚»‚Ì‘¼‚ÌŽg‚¢•û
-Á”ï“d—Í‚ð‹C‚É‚µ‚È‚¢ê‡CXbee‚Ì‹@”\‚ð‘S‚ÄOFF‚É
-‚µ‚½ã‚ÅCƒVƒŠƒAƒ‹‚ÅÚ‘±‰Â”\‚È‘¼’ÊMƒ‚ƒWƒ…[ƒ‹‚Æ
-’u‚«Š·‚¦‚é‚±‚Æ‚à‰Â”\D
+## ãã®ä»–ã®ä½¿ã„æ–¹
+æ¶ˆè²»é›»åŠ›ã‚’æ°—ã«ã—ãªã„å ´åˆï¼ŒXbeeã®æ©Ÿèƒ½ã‚’å…¨ã¦OFFã«
+ã—ãŸä¸Šã§ï¼Œã‚·ãƒªã‚¢ãƒ«ã§æŽ¥ç¶šå¯èƒ½ãªä»–é€šä¿¡ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«ã¨
+ç½®ãæ›ãˆã‚‹ã“ã¨ã‚‚å¯èƒ½ï¼Ž
 
-‚Æ‚è‚ ‚¦‚¸CBluetooth2Œn‚ÌƒVƒŠƒAƒ‹ƒvƒƒtƒ@ƒCƒ‹‚ð
-ƒTƒ|[ƒg‚·‚éƒ‚ƒWƒ…[ƒ‹‚Ìê‡CXbee‚Ì‘ã‚í‚è‚É
-—˜—p‚·‚é‚±‚Æ‚ª‚Å‚«‚é‚½‚ßC‚»‚ê‚ð‘z’è‚µ‚Ä‚¢‚éD
-
+ã¨ã‚Šã‚ãˆãšï¼ŒBluetooth2ç³»ã®ã‚·ãƒªã‚¢ãƒ«ãƒ—ãƒ­ãƒ•ã‚¡ã‚¤ãƒ«ã‚’
+ã‚µãƒãƒ¼ãƒˆã™ã‚‹ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«ã®å ´åˆï¼ŒXbeeã®ä»£ã‚ã‚Šã«
+åˆ©ç”¨ã™ã‚‹ã“ã¨ãŒã§ãã‚‹ãŸã‚ï¼Œãã‚Œã‚’æƒ³å®šã—ã¦ã„ã‚‹ï¼Ž
 
 
