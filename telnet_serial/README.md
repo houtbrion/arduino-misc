@@ -169,6 +169,7 @@ CM>
 ### 依存するライブラリのインストール
 - [detectArduinoHardware](https://github.com/houtbrion/detectArduinoHardware)
 - detectArduinoHardwareのextensionディレクトリに収納されている拡張機能ライブラリarduinoHardwareHelper
+- [NiUtils](https://github.com/houtbrion/NiUtils)
 
 もし，ESP8266で利用したい方はソフトウェアシリアルが必要になるため，以下のライブラリをインストールしてください．
 - [EspSoftwareSerial](https://www.arduino.cc/reference/en/libraries/espsoftwareserial/)
@@ -176,20 +177,29 @@ CM>
 ### 設定
 
 ### WiFi設定
-WiFiを利用する場合は，WiFiの設定を行ってください．
+WiFiを利用する場合は，WiFiの設定(config.h)を行ってください．
 ```
 #define SSID_STR "SSID"
 #define WIFI_PASS "SSIDのパスワード"
 ```
 
 ### イーサネットシールドを用いる場合
-macアドレスは以下のところを手持ちのイーサネットシールドのmacアドレスに変更してください．
+macアドレスはスケッチの以下の定義を手持ちのイーサネットシールドのmacアドレスに変更してください．
 ```
 byte mac[] = { 0x90, 0xa2, 0xda, 0x10, 0x11, 0x51 }; //アドレスは手持ちのarduinoのものに変更すること
 ```
 
+次に，config.hの以下のコメントアウト部分を有効にしてください．
+```
+/*
+ * ネットワーク関係の定義
+ */
+//#define USE_ETHERNET_W5XXX
+//#define USE_ETHERNET
+```
+
 ### パスワード設定
-パスワードは平文で埋め込みになっています．デフォルトは3個のパスワード，パスワードの長さの最大値が16文字となっています．ご自分の環境に合わせて変更してください．
+パスワードは平文で埋め込みになっています．デフォルトは3個のパスワード，パスワードの長さの最大値が16文字となっています．ご自分の環境に合わせてconfig.hを変更してください．
 ```
 #define PASSWORD_LENGTH 16
 #define PASSWORD1 "hoge"
@@ -197,19 +207,20 @@ byte mac[] = { 0x90, 0xa2, 0xda, 0x10, 0x11, 0x51 }; //アドレスは手持ち�
 #define PASSWORD3 "bar"
 #define PASSWD_NUM 3
 ```
+パスワードの数を変更した場合はスケッチの以下の部分も同様に変更してください．
 ```
 char passwd[][PASSWORD_LENGTH]={PASSWORD1, PASSWORD2, PASSWORD3};
 ```
 
 ### タイムアウト時間の設定
-デフォルトは5分(300000ミリ秒)telnet側からの入力がないと自動切断されるため，このパラメータを用途に合わせて変更します．
+デフォルトは5分(300000ミリ秒)telnet側からの入力がないと自動切断されるため，config.hのパラメータを用途に合わせて変更します．
 ```
 #define INPUT_TIMEOUT 300000
 ```
 
 ### リセットピンを使う場合の設定
 Raspberry Piでは，OSをシャットダウンした状態でGPIOの3番ピン(I2Cと兼用)をGNDに落とすとOSのロードがされる仕様となっています．
-この機能を使うための機能が実装されており，下に引用したように「USE_HARD_RESET_PIN」にArduino(もしくは互換機)のピン番号を定義しておくと，この機能がコンパイルされます．
+この機能を使うための機能が実装されており，下に引用したように「USE_HARD_RESET_PIN」にArduino(もしくは互換機)のピン番号をconfig.hに定義しておくと，この機能がコンパイルされます．
 ```
 #define USE_HARD_RESET_PIN 15 // Espr one 32のD2 これを定義すると、ハードリセットプログラムがコンパイルされる
 #define HARD_RESET_TIME 1000  // 1秒(定義の単位はms)
@@ -225,13 +236,13 @@ Raspberry Pi以外でもBeagle Bone等の開発用ボードでは，この機能
 ### IP設定
 
 #### DHCPを利用する場合
-以下のコメントアウトを外してください．
+config.hの以下のコメントアウトを外してください．
 ```
 //#define USE_DHCP
 ```
 
 #### 固定IPの場合
-以下の部分を自分の環境に合わせて変更してください．
+スケッチ中の以下の部分を自分の環境に合わせて変更してください．
 ```
 IPAddress ip(192, 168, 1, 222);
 IPAddress dnsServer(192, 168, 1, 1);

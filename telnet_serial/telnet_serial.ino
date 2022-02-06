@@ -1,31 +1,11 @@
+#include <arduinoHardwareHelper.h>
+#include "config.h"
 
+#include "NiUtils.h"
 
-#define DEBUG
-#define DEBUG_SERIAL_SPEED 115200
-
-//#define USE_DHCP                 // IPアドレスをDHCPで行う (コメントアウトした場合は固定IP)
-
-#define USE_DEFAULT_NETWORK_IF     // デフォルトのネットワークI/Fを使うか否かの指定． デフォルトが定義されない機種もあるので注意
-/* デフォルトのNICを用いない場合は，以下の中から選択 */
-//#define USE_WIFI_NINA              // デフォルトのNICを無視して，強制的にWiFi NINAライブラリを用いる場合
-//#define USE_NORMAL_WIFI            // デフォルトのNICを無視して，強制的にWiFiのI/Fを使う場合
-//#define USE_NORMAL_ETHERNET        //デフォルトのNICを無視して，強制的にイーサネットシールドを使う場合
-
-//#define USE_CUSTOM_SERIAL
-
-#define USE_HARD_RESET_PIN 15 // Espr one 32のD2 これを定義すると、ハードリセットプログラムがコンパイルされる
-#define HARD_RESET_TIME 1000  // 1秒(定義の単位はms)
-
-/*
- * telnetのポート番号定義
- */
-#define PORT_NUMBER 23
-
-/*
- * WiFiのI/Fを使う場合の定義
- */
-#define SSID_STR "foo"
-#define WIFI_PASS "bar"
+#ifdef USE_ETHERNET
+byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xF0, 0x0D };
+#endif /* USE_ETHERNET */
 
 /*
  * シリアル通信用I/Fのデフォルトパラメータの定義(デバッグ用ではない)
@@ -34,10 +14,6 @@
 #define DEFAULT_SERIAL_PARAMETER SERIAL_8N1
 //#define DEFAULT_SERIAL_PARAMETER SWSERIAL_8N1
 
-/*
- * 一定時間入力がない場合に，通信を切断するので，その時間をミリ秒単位で定義
- */
-#define INPUT_TIMEOUT 300000
 
 /*
  * シリアル中継モードを抜けるために用いるエスケープコードの定義
@@ -46,11 +22,6 @@
 //#define CTRL_CODE 0x12   // Ctrl-R
 //#define CTRL_CODE 0x13   // Ctrl-S
 //#define CTRL_CODE 0x14   // Ctrl-T
-
-/*
- * telnetでのパスワード認証をPASSWD_RETRY_MAX回失敗するとconnectionは切る
- */
-#define PASSWD_RETRY_MAX  3
 
 /*
  * ここから下は基本的にカスタマイズ不要
@@ -70,40 +41,7 @@
 #define PASSWD_CHAR_START 0x21
 #define PASSWD_CHAR_END   0x7e
 
-#define PASSWORD_LENGTH 16
-#define PASSWORD1 "hoge"
-#define PASSWORD2 "foo"
-#define PASSWORD3 "bar"
-#define PASSWD_NUM 3
 
-#include <arduinoHardwareHelper.h>
-
-#ifdef USE_DEFAULT_NETWORK_IF /* デフォルトで想定するネットワークI/Fの種類を定義 */
-
-#if CPU_ARCH==AVR_ARCH /* AVRは基本Ethernetシールドを想定 */
-#if HARDWARE_TYPE==ARDUINO_UNO_WIFI_DEV_ED
-#define USE_WIFI_NINA
-#else /* ARDUINO_UNO_WIFI_DEV_ED */
-#define USE_NORMAL_ETHERNET
-#endif /* ARDUINO_UNO_WIFI_DEV_ED */
-#endif /* CPU_ARCH==AVR_ARCH */
-
-#if CPU_ARCH==XTENSA_LX106_ARCH /* ESP8266 */
-#define USE_NORMAL_WIFI
-// ESP8266はSerial1とか2は利用できないのでsoftwareserial専用
-#endif /* CPU_ARCH==XTENSA_LX106_ARCH (ESP8266) */
-
-#if CPU_ARCH==XTENSA_LX6_ARCH /* ESP32 */
-#define USE_NORMAL_WIFI
-#endif /* CPU_ARCH==XTENSA_LX6_ARCH (ESP32) */
-
-#if CPU_ARCH==SAMD_ARCH /* MKR系列など */
-#if defined(ARDUINO_SAMD_NANO_33_IOT) || defined(ARDUINO_SAMD_MKRWIFI1010) || defined(ARDUINO_SAMD_MKRVIDOR4000)
-#define USE_WIFI_NINA
-#endif /* ARDUINO_SAMD_NANO_33_IOT || ARDUINO_SAMD_MKRWIFI1010 || ARDUINO_SAMD_MKRVIDOR4000 */
-#endif /* CPU_ARCH==SAMD_ARCH  */
-
-#endif /* USE_DEFAULT_NETWORK_IF */
 
 #ifndef USE_CUSTOM_SERIAL /* デフォルトのシリアルを使うか否か */
 #if CPU_ARCH==AVR_ARCH /* AVRはMegaを想定 */
@@ -187,23 +125,6 @@ SoftwareSerial COM_PORT(SOFTWARE_SERIAL_RX, SOFTWARE_SERIAL_TX, false);
 #define SERIAL_PARAM_8O2 SERIAL_8O2
 #endif /* USE_SOFTWARE_SERIAL */
 
-/*
- * NICのライブラリのインクルード
- */
-#ifdef USE_WIFI_NINA
-#define USE_WIFI
-#include <WiFiNINA.h>
-#endif /* USE_WIFI_NINA */
-
-#ifdef USE_NORMAL_WIFI
-#define USE_WIFI
-#include <WiFi.h>
-#endif /* USE_NORMAL_WIFI */
-
-#ifdef USE_NORMAL_ETHERNET
-#define USE_ETHERNET
-#include <Ethernet.h>
-#endif /* USE_ETHERNET */
 
 char passwd[][PASSWORD_LENGTH]={PASSWORD1, PASSWORD2, PASSWORD3};
 uint8_t passwd_array_size=3;
@@ -213,10 +134,6 @@ boolean useDhcp = true;   // DHCPでIPアドレスを設定
 #else /* USE_DHCP */
 boolean useDhcp = false;  // 固定IPアドレス
 #endif /* USE_DHCP */
-
-#ifdef USE_NORMAL_ETHERNET // ArduinoのイーサネットシールドはMACアドレスのROMがないので，定義が必要
-byte mac[] = { 0x90, 0xa2, 0xda, 0x10, 0x11, 0x51 }; //アドレスは手持ちのarduinoのものに変更すること
-#endif /* USE_NORMAL_ETHERNET */
 
 IPAddress ip(192, 168, 1, 222);
 IPAddress dnsServer(192, 168, 1, 1);
@@ -269,42 +186,34 @@ String DisplayAddress(IPAddress address) {
         String(address[3]);
 }
 
-#ifdef USE_NORMAL_ETHERNET
 void setupNetwork(void) {
-  if (useDhcp) {
-    if (Ethernet.begin(mac) == 0) {
-      logging(F("DHCP fail.\n"));
-      helper.SoftwareReset();
-    }
-  } else {
-    Ethernet.begin(mac, ip, dnsServer, gatewayAddress, netMask);
-    logging(F("ethernet setup done.\n"));
+  if (!CheckNif()) {
+    Serial.println("No network interface shield.");while(true) {};
   }
-  logging(F("IP address : ")); logging(DisplayAddress(Ethernet.localIP())); logging("\n");
-}
-#endif /* USE_NORMAL_ETHERNET */
-
+  if (useDhcp) {
 #ifdef USE_WIFI
-void setupNetwork(void) {
-  if (useDhcp) {
-    WiFi.begin(SSID_STR, WIFI_PASS);
-    while ( WiFi.status() != WL_CONNECTED ) {
-      delay ( 500 );
-      logging( "." );
-    }
-    logging("\n");
-  } else {
-    WiFi.config(ip, dnsServer, gatewayAddress, netMask);
-    WiFi.begin(SSID_STR, WIFI_PASS);
-    while ( WiFi.status() != WL_CONNECTED ) {
-      delay ( 500 );
-      logging( "." );
-    }
-    logging("\n");
-  }
-  logging(F("IP address : ")); logging(DisplayAddress(WiFi.localIP())); logging("\n");
-}
+    WiFi.begin(WIFI_SSID, WIFI_PASS);
 #endif /* USE_WIFI */
+#ifdef USE_ETHERNET
+    Ethernet.begin(mac);
+#endif /* USE_ETHERNET */
+  } else {
+#ifdef USE_WIFI
+    WiFi.config(ip, dnsServer, gatewayAddress, netMask);
+    WiFi.begin(WIFI_SSID, WIFI_PASS);
+#endif /* USE_WIFI */
+#ifdef USE_ETHERNET
+    Ethernet.begin(mac, ip, dnsServer, gatewayAddress, netMask);
+#endif /* USE_ETHERNET */
+  }
+  uint8_t retVal=NifInitStatus();
+  switch(retVal) {
+    case 0: break;
+    case 1: Serial.println("Can not connect to WiFi network.");while(true) {};
+    case 2: Serial.println("Ethernet link is off.");while(true) {};
+  }
+  PrintNetworkStatus();
+}
 
 void setup() {
 #ifdef DEBUG
@@ -323,6 +232,7 @@ void setup() {
   state=STATE_WAIT_CLIENT;
   server.begin();
   COM_PORT.begin(serialSpeed, serialParameter);
+  Serial.println("setup done.");
 }
 
 uint8_t WaitClient(void) {
