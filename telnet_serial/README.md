@@ -167,12 +167,16 @@ CM>
 
 
 ### 依存するライブラリのインストール
+
+本スケッチ用で利用する以下のライブラリをインストールしてください．
 - [detectArduinoHardware](https://github.com/houtbrion/detectArduinoHardware)
 - detectArduinoHardwareのextensionディレクトリに収納されている拡張機能ライブラリarduinoHardwareHelper
 - [NiUtils](https://github.com/houtbrion/NiUtils)
 
-もし，ESP8266で利用したい方はソフトウェアシリアルが必要になるため，以下のライブラリをインストールしてください．
+もしESP8266を利用する場合は，ソフトウェアシリアルが必要になるので，以下のライブラリをインストールしてください．
 - [EspSoftwareSerial](https://www.arduino.cc/reference/en/libraries/espsoftwareserial/)
+
+AVRの場合は，ソフトシリアルに特別なライブラリをインストールする必要はありません．
 
 ### 設定
 
@@ -249,6 +253,7 @@ IPAddress dnsServer(192, 168, 1, 1);
 IPAddress gatewayAddress(192, 168, 1, 1);
 IPAddress netMask(255, 255, 255, 0);
 ```
+
 
 ## ハード
 ここでは，ESP32でこのプログラムを動作させ，Raspberry Piに接続して利用する場合のハードウェアを紹介します．最初の図はブレッドボードで作成した場合の回路になります．
