@@ -85,6 +85,13 @@ IRremote自体は動作しているようで，別のArduinoで受信させる�
 
 また，ESP8266は開発用のPCのUSBシリアルドライバの動作がおかしいため，インストールすらできていません．
 
+![回路](./IrRelayRestServer.png)
+
+上がこのスケッチの配線例ですが，赤外線LEDのピンは以下のピン番号の定義で変更できます．
+```
+#define IR_LED_PIN 4
+```
+
 ## インストール
 ###  IDEのライブラリマネージャーを利用してインストールするライブラリ
 - [IRremote](https://github.com/Arduino-IRremote/Arduino-IRremote)ライブラリ
