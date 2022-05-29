@@ -75,19 +75,17 @@ void IRsend::sendNEC(uint16_t aAddress, uint8_t aCommand, uint_fast8_t aNumberOf
 | CPUアーキ | 機種                                       | コンパイル | IRremoteでの受信 | 実機での確認 |
 |---|---|---|---|---|
 | AVR系     | Arduino Mega 2560 R3 + イーサネットシールド | ○         | ○ | △(対象装置限定) |
-| SAMD系    | Arduino MKR WiFi 1010                     | ○         | ○ | × |
+| SAMD系    | Arduino MKR WiFi 1010                     | ○         | ○ | △(対象装置限定) |
 | ESP32     | ESP32 dev kit                             | ○         | ○ | × |
 | ESP8266   | ESP8266 generic module                    | ○         | 未確認 | 未確認 |
 
-Arduino Megaを用いた場合は，実際のLED電灯の制御ができていますが，Arduino MKR WiFi1010やESP32の開発用ボードでは，実機がうまくIRの信号を認識してくれていないようです．
-
-IRremote自体は動作しているようで，別のArduinoで受信させると，意図したコマンドが出ていると認識してくれます．AVRの5Vで動作する機器以外での動作は今後の課題です．問題が使っているIR LEDなのか，IR remoteなのか今のところわかりません．
+Arduino MegaとArduino MKR WiFi1010を用いた場合は，実際のLED電灯の制御ができていますが，ESP32の開発用ボードでは，実機でうまく動かない状態です(起動直後の一回だけ成功する)．ESP32のサポートは今後の課題です．
 
 また，ESP8266は開発用のPCのUSBシリアルドライバの動作がおかしいため，インストールすらできていません．
 
 ![回路](./IrRelayRestServer.png)
 
-上がこのスケッチの配線例ですが，赤外線LEDのピンは以下のピン番号の定義で変更できます．
+上がこのスケッチの配線例ですが，動作試験では，赤外線LEDに[Grove Infrared Emitter](https://jp.seeedstudio.com/Grove-Infrared-Emitter.html)を用いています．また，LED接続先のピンは以下のピン番号の定義で変更できます．
 ```
 #define IR_LED_PIN 4
 ```

@@ -783,9 +783,11 @@ byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 
 #ifndef IR_SEND_PIN
   pinMode(IR_LED_PIN , OUTPUT);
+  Serial.print(" pin Number = ");Serial.println(IR_LED_PIN);
   IrSender.begin((uint8_t) IR_LED_PIN);
 #else /* IR_SEND_PIN */
   pinMode(IR_SEND_PIN , OUTPUT);
+  Serial.print(" pin Number = ");Serial.println(IR_SEND_PIN);
   IrSender.begin();
 #endif /* IR_SEND_PIN */
 }
